@@ -1,5 +1,4 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { h, render } from 'preact';
 import CalculatorUI from './calculatorUI';
 
-ReactDOM.render(<CalculatorUI />, document.getElementById("reactRoot"));
+render(<CalculatorUI />, document.getElementById("reactRoot"));

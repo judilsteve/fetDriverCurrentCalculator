@@ -10,17 +10,16 @@ module.exports = {
         libraryTarget: 'umd'
     },
     module: {
-        rules: [
-            { test: /\.(t|j)sx?$/, use: { loader: 'awesome-typescript-loader' } },
-            { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
+        loaders: [
+            {
+              test: /\.tsx?$/,
+              exclude: /node_modules/,
+              loaders: ['awesome-typescript-loader']
+            }
         ]
     },
     resolve: {
         extensions: ['.ts', '.tsx', 'js', 'jsx']
     },
-    devtool: 'source-map',
-    externals: {
-        "react": "React",
-        "react-dom": "ReactDOM"
-    }
+    devtool: 'source-map'
 }
