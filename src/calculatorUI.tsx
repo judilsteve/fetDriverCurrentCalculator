@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { h, Component } from 'preact';
 import { Battery, CurrentCalculator, IterationResult } from './currentCalculator';
 import { EMITTERS } from './emitterData';
 import ResultsTable from './resultsTable';
@@ -20,7 +20,7 @@ interface CalculatorUIState {
     calculationResults: IterationResult[]
 };
 
-export default class CalculatorUI extends React.Component<any, CalculatorUIState> {
+export default class CalculatorUI extends Component<any, CalculatorUIState> {
     constructor(props: any) {
         super(props);
         this.state = {
@@ -74,17 +74,29 @@ export default class CalculatorUI extends React.Component<any, CalculatorUIState
         });
     }
 
-    updateConfig(e, mustBeInteger: boolean, mustBePositive: boolean) {
+    updateConfigNumber(e, mustBeInteger: boolean, mustBePositive: boolean) {
         const target = e.target;
         const newValue = target.value;
         const stateField = target.name;
 
+        let newValueIsValid = true;
+
         if(mustBeInteger && !Number.isInteger(Number.parseFloat(newValue))) {
-            return;
+            newValueIsValid = false;
         }
         if(mustBePositive && newValue <= 0) {
-            return;
+            newValueIsValid = false;
         }
+
+        this.setState({
+            [stateField]: newValueIsValid ? Number.parseFloat(newValue) :this.state[stateField]
+        });
+    }
+
+    updateConfigString(e) {
+        const target = e.target;
+        const newValue = target.value;
+        const stateField = target.name;
 
         this.setState({
             [stateField]: newValue
@@ -92,176 +104,163 @@ export default class CalculatorUI extends React.Component<any, CalculatorUIState
     }
 
     render() {
-        const configBlock = {
-            display: "grid",
-            width: "50%"
-        };
-        const configTitle = {
-            gridColumnStart: 1,
-            gridColumnEnd: 2
-        };
-        const configInput = {
-            gridColumnStart: 2,
-            gridColumnEnd: 3
-        };
-
         // TODO Refactor each configuration block into its own component,
         // because this is atrocious
         return(
             <div>
                 <h4>Battery Configuration:</h4>
-                <div style={configBlock}>
+                <div class="configBlock">
 
-                    <div style={configTitle}>Cell voltage (V)</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Cell voltage (V)</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="cellVoltage"
-                            value={this.state.cellVoltage}
+                            value={this.state.cellVoltage.toString()}
                             step={0.1}
-                            onChange={(e) => this.updateConfig(e, false, true)}/>
+                            onChange={(e) => this.updateConfigNumber(e, false, true)}/>
                     </div>
 
-                    <div style={configTitle}>Internal resistance (Ohms)</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Internal resistance (Ohms)</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="cellInternalResistance"
                             step={0.01}
-                            value={this.state.cellInternalResistance}
-                            onChange={(e) => this.updateConfig(e, false, true)}/>
+                            value={this.state.cellInternalResistance.toString()}
+                            onChange={(e) => this.updateConfigNumber(e, false, true)}/>
                     </div>
 
-                    <div style={configTitle}>Number of cells</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Number of cells</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="cellCount"
-                            value={this.state.cellCount}
-                            onChange={(e) => this.updateConfig(e, true, true)}/>
+                            value={this.state.cellCount.toString()}
+                            onChange={(e) => this.updateConfigNumber(e, true, true)}/>
                     </div>
 
-                    <div style={configTitle}>Cell configuration:</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Cell configuration:</div>
+                    <div class="configInput">
                         <label>Parallel <input
                             type="radio"
                             value="parallel"
                             name="cellWiring"
                             checked={this.state.cellWiring == "parallel"}
-                            onChange={(e) => this.updateConfig(e, false, false)}/>
+                            onChange={(e) => this.updateConfigString(e)}/>
                         </label>
                         <label>Series <input
                             type="radio"
                             value="series"
                             name="cellWiring"
                             checked={this.state.cellWiring == "series"}
-                            onChange={(e) => this.updateConfig(e, false, false)}/>
+                            onChange={(e) => this.updateConfigString(e)}/>
                         </label>
                     </div>
 
                 </div>
 
-                <div style={configBlock}>
+                <div class="configBlock">
                     <h4>Emitter Configuration:</h4>
 
-                    <div style={configTitle}>Emitter</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Emitter</div>
+                    <div class="configInput">
                         <select
                             value={this.state.emitterType}
                             name="emitterType"
-                            onChange={(e) => this.updateConfig(e, false, false)}>
+                            onChange={(e) => this.updateConfigString(e)}>
                                 {Object.keys(EMITTERS).map( name => <option value={name} key={name}>{name}</option> )}
                         </select>
                     </div>
 
-                    <div style={configTitle}>Number of emitters</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Number of emitters</div>
+                    <div class="configInput">
                         <input
                             type="number"
-                            value={this.state.emitterCount}
+                            value={this.state.emitterCount.toString()}
                             name="emitterCount"
-                            onChange={(e) => this.updateConfig(e, true, true)}/>
+                            onChange={(e) => this.updateConfigNumber(e, true, true)}/>
                     </div>
 
-                    <div style={configTitle}>Emitter configuration</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Emitter configuration</div>
+                    <div class="configInput">
                         <label>Parallel<input
                             type="radio"
                             value="parallel"
                             name="emitterWiring"
                             checked={this.state.emitterWiring == "parallel"}
-                            onChange={(e) => this.updateConfig(e, false, false)}/>
+                            onChange={(e) => this.updateConfigString(e)}/>
                         </label>
                         <label>Series<input
                             type="radio"
                             value="series"
                             name="emitterWiring"
                             checked={this.state.emitterWiring == "series"}
-                            onChange={(e) => this.updateConfig(e, false, false)}/>
+                            onChange={(e) => this.updateConfigString(e)}/>
                         </label>
                     </div>
 
                 </div>
 
-                <div style={configBlock}>
+                <div class="configBlock">
                     <h4>Gradient Descent Configuration:</h4>
 
-                    <div style={configTitle}>Search range min (A)</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Search range min (A)</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="searchRangeMin"
-                            value={this.state.searchRangeMin}
-                            onChange={(e) => this.updateConfig(e, false, true)}/><br/>
+                            value={this.state.searchRangeMin.toString()}
+                            onChange={(e) => this.updateConfigNumber(e, false, true)}/><br/>
                     </div>
 
-                    <div style={configTitle}>Search range max (A)</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Search range max (A)</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="searchRangeMax"
-                            value={this.state.searchRangeMax}
-                            onChange={(e) => this.updateConfig(e, false, true)}/><br/>
+                            value={this.state.searchRangeMax.toString()}
+                            onChange={(e) => this.updateConfigNumber(e, false, true)}/><br/>
                     </div>
 
-                    <div style={configTitle}>Initial samples</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Initial samples</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="initialSamples"
                             step={10}
-                            value={this.state.initialSamples}
-                            onChange={(e) => this.updateConfig(e, true, true)}/><br/>
+                            value={this.state.initialSamples.toString()}
+                            onChange={(e) => this.updateConfigNumber(e, true, true)}/><br/>
                     </div>
 
-                    <div style={configTitle}>Refinement rate</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Refinement rate</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="refinementRate"
-                            value={this.state.refinementRate}
+                            value={this.state.refinementRate.toString()}
                             step={0.1}
-                            onChange={(e) => this.updateConfig(e, false, true)}/><br/>
+                            onChange={(e) => this.updateConfigNumber(e, false, true)}/><br/>
                     </div>
 
-                    <div style={configTitle}>Refinement iterations</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Refinement iterations</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="refinementIterations"
                             step={10}
-                            value={this.state.refinementIterations}
-                            onChange={(e) => this.updateConfig(e, true, true)}/><br/>
+                            value={this.state.refinementIterations.toString()}
+                            onChange={(e) => this.updateConfigNumber(e, true, true)}/><br/>
                     </div>
 
-                    <div style={configTitle}>Refinement threshold (min error, V)</div>
-                    <div style={configInput}>
+                    <div class="configTitle">Refinement threshold (min error, V)</div>
+                    <div class="configInput">
                         <input
                             type="number"
                             name="refinementThreshold"
-                            value={this.state.refinementThreshold}
+                            value={this.state.refinementThreshold.toString()}
                             step={0.0001}
-                            onChange={(e) => this.updateConfig(e, false, true)}/>
+                            onChange={(e) => this.updateConfigNumber(e, false, true)}/>
                     </div>
 
                 </div>

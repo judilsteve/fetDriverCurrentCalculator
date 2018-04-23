@@ -16,7 +16,8 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "jsx": "react",
-        "lib": ["dom", "dom.iterable", "scripthost", "esnext"]
+        "lib": ["dom", "dom.iterable", "scripthost", "esnext"],
+        "jsxFactory": "h"
     },
     "include": [
         "./src/"
